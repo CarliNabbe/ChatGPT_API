@@ -9,35 +9,45 @@ generateButton.addEventListener('click', generateText);
 // Function to generate text using the OpenAI API
 function generateText() {
   const prompt = inputElement.value;
-  const apiKey = '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';
-  const org = 'org-Qey69HyoEbF6K1YAA7iDKa9r';
+  const apiKey = "APIKEY_HERE";
 
   // Make a request to the OpenAI API
-  fetch(`https://api.openai.com/v1/engines/davinci-codex/completions`, {
-    method: 'POST',
+  fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`,
-      'OpenAI-Organization': org
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      'prompt': prompt,
-      'temperature': 0.7,
-      'max_tokens': 100
-    })
+      model: 'gpt-3.5-turbo',
+      messages: [
+        {
+          role: 'user',
+          content: prompt
+        }
+      ],
+      max_tokens: 50,
+      temperature: 0.5,
+    }),
   })
-    .then(response => {
+    .then((response) => {
       if (!response.ok) {
-        throw new Error('API request failed');
+        throw new Error("API request failed");
       }
       return response.json();
     })
-    .then(data => {
-      const generatedText = data.choices[0].text.trim();
-      outputElement.textContent = generatedText;
+    .then((data) => {
+      const choices = data.choices;
+      if (choices.length > 0) {
+        const generatedText = choices[0].message.content;
+        outputElement.textContent = generatedText;
+      } else {
+        outputElement.textContent = "No response from the model.";
+      }
     })
-    .catch(error => {
-      console.error('Error:', error.message);
-      outputElement.textContent = 'An error occurred. Please check the console for more details.';
+    .catch((error) => {
+      console.error("Error:", error.message);
+      outputElement.textContent =
+        "An error occurred. Please check the console for more details.";
     });
 }
